@@ -12,11 +12,12 @@ public class MazeGenerator {
     PaintMaze();
     CritPoints();
     try{
-      Thread.sleep(10 * xDimension);
+      Thread.sleep((int) Math.pow(xDimension, 1.5));
     }
     catch(InterruptedException ex){
       System.out.println(ex);
     }
+    System.out.println("Done pausing.");
     
     HoodMaze();
     processor.createImage(processor.mazeImage(maze), name);

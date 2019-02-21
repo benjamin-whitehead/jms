@@ -5,8 +5,9 @@ import java.awt.Point;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.Dimension;
+import java.util.ArrayList;
 
-public class MazeGenLauncher extends JFrame {
+public class MazeSolveLauncher extends JFrame {
   
   // Total Size of the Screen
   private final Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -19,13 +20,14 @@ public class MazeGenLauncher extends JFrame {
   //Graphics variables
   private int xSize = 0, ySize = 0, xAdjust = 9, yAdjust = 31;
   private Point future = new Point(0, 0);
+  private ArrayList<Point> path = new ArrayList<Point>();
   
 //Toggleable
   //Number The Boxes
   private final boolean boxNumbers = false;
   
   // Constructor that takes in AdjacencyMatrix and a solved path, sets up the GUI
-  public MazeGenLauncher(int[][] adjacencyMatrix){
+  public MazeSolveLauncher(int[][] adjacencyMatrix){
     this.adjacencyMatrix = adjacencyMatrix;
     
     //Screen commands
@@ -85,22 +87,46 @@ public class MazeGenLauncher extends JFrame {
       int y2 = (int) future.getY();
       //System.out.println("Draw Point: (" + x2 + ", " + y2 + ")");
         
-      g.setColor(Color.WHITE);
+      g.setColor(Color.ORANGE);
       g.fillRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
       g.setColor(Color.BLACK);
       g.drawRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
       
       future = new Point(0, 0);
     }
+    
+    while (path.size() != 0){
+      Point current = path.remove(0);
+      int x2 = (int) current.getX();
+      int y2 = (int) current.getY();
+      //System.out.println("Draw Point: (" + x2 + ", " + y2 + ")");
+      
+      g.setColor(Color.BLUE);
+      g.fillRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
+      g.setColor(Color.BLACK);
+      g.drawRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
+      
+      try{
+        Thread.sleep(1);
+      }
+      catch(InterruptedException ex){
+        System.out.println(ex);
+      }
+    }
   }
   
-  public void addPoint(Point future){
+  public void drawPath(ArrayList<Point> path){
+    this.path = path;
+    repaint();
+  }
+  
+  public void addDeadPoint(Point future){
     this.future = future;
     repaint();
   }
   
   public static void main(String[] args){
     ImageProcessor processor = new ImageProcessor(new File("../res/test.png"));
-    //new MazeGenLauncher(processor.createAdjacencyMatrix());
+    //new MazeSolveLauncher(processor.createAdjacencyMatrix());
   }
 }

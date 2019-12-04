@@ -130,7 +130,6 @@ public class MazeLauncher extends JFrame {
   }
   
   public static void main(String[] args){
-    ImageProcessor processor = new ImageProcessor(new File("../res/test.png"));
-    new MazeLauncher(processor.createAdjacencyMatrix());
+    new MazeLauncher(new ImageProcessor(new File("../res/test.png")).createAdjacencyMatrix());
   }
 }

@@ -7,7 +7,6 @@ import java.awt.Toolkit;
 import java.awt.Dimension;
 
 public class MazeGenLauncher extends JFrame {
-  
   // Total Size of the Screen
   private final Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
   private final int ScreenHeight = (int) ScreenSize.getHeight() - 70;
@@ -52,10 +51,16 @@ public class MazeGenLauncher extends JFrame {
       xSize = (SquareSize / adjacencyMatrix.length);
       ySize = (SquareSize / adjacencyMatrix[0].length);
       
+      g.setColor(Color.BLACK);
+      g.fillRect(xAdjust, yAdjust, xSize * adjacencyMatrix[0].length, ySize * adjacencyMatrix.length);
+      
+      boolean draw = true;
+      
       for (int x = 0; x < adjacencyMatrix.length; x++)
         for (int y = 0; y < adjacencyMatrix[0].length; y++){
+        draw = true;
         switch (adjacencyMatrix[x][y]){
-          case 0: g.setColor(Color.BLACK); break;
+          case 0: g.setColor(Color.BLACK); draw = false; break;
           case 1: g.setColor(Color.WHITE); break;
           case 2: g.setColor(Color.LIGHT_GRAY); break;
           case 3: g.setColor(Color.GREEN); break;
@@ -63,9 +68,8 @@ public class MazeGenLauncher extends JFrame {
           case 5: g.setColor(Color.ORANGE); break;
           case 6: g.setColor(Color.RED); break;
         }
-        g.fillRect(xAdjust + x * xSize, yAdjust + y * ySize, xSize, ySize);
-        g.setColor(Color.BLACK);
-        g.drawRect(xAdjust + x * xSize, yAdjust + y * ySize, xSize, ySize);
+        if (draw)
+          g.fillRect(xAdjust + x * xSize + 1, yAdjust + y * ySize + 1, xSize - 1, ySize - 1);
         
         if (adjacencyMatrix[x][y] != 0)
           g.setColor(Color.BLACK);
@@ -86,9 +90,7 @@ public class MazeGenLauncher extends JFrame {
       //System.out.println("Draw Point: (" + x2 + ", " + y2 + ")");
         
       g.setColor(Color.WHITE);
-      g.fillRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
-      g.setColor(Color.BLACK);
-      g.drawRect(xAdjust + x2 * xSize, yAdjust + y2 * ySize, xSize, ySize);
+      g.fillRect(xAdjust + x2 * xSize + 1, yAdjust + y2 * ySize + 1, xSize - 1, ySize - 1);
       
       future = new Point(0, 0);
     }
@@ -100,7 +102,6 @@ public class MazeGenLauncher extends JFrame {
   }
   
   public static void main(String[] args){
-    ImageProcessor processor = new ImageProcessor(new File("../res/test.png"));
-    //new MazeGenLauncher(processor.createAdjacencyMatrix());
+    new MazeGenLauncher(new ImageProcessor(new File("../res/test.png")).createAdjacencyMatrix());
   }
 }

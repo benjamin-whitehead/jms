@@ -53,7 +53,7 @@ public class ImageProcessor {
   }
   
   // Method that takes in a 2D RGB Image Array and saves it to a png image 
-  public static void createImage(int[][] image, String name) {
+  public void createImage(int[][] image, String name) {
     try {
       BufferedImage sampleImage = new BufferedImage(image.length, image[0].length, BufferedImage.TYPE_INT_RGB);
       for(int row = 0; row < image.length; row++) {
@@ -72,7 +72,7 @@ public class ImageProcessor {
   }
   
   // Method that takes in a 2D RGB Image Array and saves it to a png image 
-  public static void createImage(int[][] image, ArrayList<Point> path, String name) {
+  public void createImage(int[][] image, ArrayList<Point> path, String name) {
     int red = Color.RED.getRGB();
     try {
       BufferedImage sampleImage = new BufferedImage(image.length, image[0].length, BufferedImage.TYPE_INT_RGB);

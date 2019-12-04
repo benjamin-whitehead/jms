@@ -1,42 +1,113 @@
-import java.util.ArrayList;
-import java.awt.Point;
 import java.io.File;
+import javax.swing.JFrame;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.Dimension;
+import java.util.ArrayList;
 
-public class MazeGenerator { 
+public class MazeGraphicGenerator extends JFrame {
   private int[][] maze;
   private Point critOne, critTwo;
-  private MazeGenLauncher launcher;
+  // Total Size of the Screen
+  private final Dimension ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
+  private final int ScreenHeight = (int) ScreenSize.getHeight() - 70;
+  private final int ScreenWidth = (int) ScreenSize.getWidth();
+  private boolean first = true;
+  private int xSize = 0, ySize = 0, xAdjust = 9, yAdjust = 31;
+  private Point future = new Point(0, 0);
   
-  public MazeGenerator(ImageProcessor processor, int xDimension, int yDimension, String name) {
+//Toggleable
+  //Number The Boxes
+  private final boolean boxNumbers = false;
+  
+  // Constructor that takes in AdjacencyMatrix and a solved path, sets up the GUI
+  public MazeGraphicGenerator(ImageProcessor processor, int xDimension, int yDimension, String name) {
     maze = new int[xDimension][yDimension];
     PaintMaze();
     CritPoints();
-    try{
-      Thread.sleep(xDimension);
-    }
-    catch(InterruptedException ex){
-      System.out.println(ex);
-    }
-    System.out.println("Done pausing.");
+    
+    //Screen commands
+    setSize(ScreenWidth,ScreenHeight);
+    setExtendedState(JFrame.MAXIMIZED_BOTH);
+    setResizable(true);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setUndecorated(false);
+    setVisible(true);
     
     HoodMaze();
     processor.createImage(processor.mazeImage(maze), name);
   }
   
-  public void ChangeCoords(Point changed){
-    int x = (int) changed.getX();
-    int y = (int) changed.getY();
-    maze[x][y] = 1;
-    launcher.addPoint(changed);
-    
-    //Pause
-    try{
-      Thread.sleep(1);
+  // Graphics Handler Code
+  public void paint(Graphics g){
+    if (first){
+      //Blank out rectangle on screen
+      g.setColor(Color.WHITE);
+      g.fillRect(0, 0, ScreenWidth, ScreenHeight); 
+      
+      //Main sqaure grid
+      int SquareSize = ScreenHeight;
+      if (ScreenHeight > ScreenWidth)
+        SquareSize = ScreenWidth;
+      
+      xSize = (SquareSize / maze.length);
+      ySize = (SquareSize / maze[0].length);
+      
+      g.setColor(Color.BLACK);
+      g.fillRect(xAdjust, yAdjust, xSize * maze[0].length, ySize * maze.length);
+      
+      boolean draw = true;
+      
+      for (int x = 0; x < maze.length; x++)
+        for (int y = 0; y < maze[0].length; y++){
+        draw = true;
+        switch (maze[x][y]){
+          case 0: g.setColor(Color.BLACK); draw = false; break;
+          case 1: g.setColor(Color.WHITE); break;
+          case 2: g.setColor(Color.LIGHT_GRAY); break;
+          case 3: g.setColor(Color.GREEN); break;
+          case 4: g.setColor(Color.YELLOW); break;
+          case 5: g.setColor(Color.ORANGE); break;
+          case 6: g.setColor(Color.RED); break;
+        }
+        if (draw)
+          g.fillRect(xAdjust + x * xSize + 1, yAdjust + y * ySize + 1, xSize - 1, ySize - 1);
+        
+        if (maze[x][y] != 0)
+          g.setColor(Color.BLACK);
+        else
+          g.setColor(Color.WHITE);
+        
+        if (boxNumbers){
+          g.drawString(y + "", xAdjust + x * xSize, yAdjust + (y + 1) * ySize);
+          g.drawString(x + "", xAdjust + x * xSize, yAdjust + (int) ySize / 2 + y * ySize);
+        }
+      }
+      first = false;
+      g.setColor(Color.WHITE);
     }
-    catch(InterruptedException ex){
-      System.out.println(ex);
+    
+    if (!future.equals(new Point(0, 0))){
+      int x2 = (int) future.getX();
+      int y2 = (int) future.getY();
+      //System.out.println("Draw Point: (" + x2 + ", " + y2 + ")");
+        
+      g.setColor(Color.WHITE);
+      g.fillRect(xAdjust + x2 * xSize + 1, yAdjust + y2 * ySize + 1, xSize - 1, ySize - 1);
+      
+      future = new Point(0, 0);
     }
   }
+  
+ public void paintComponent(Point changed, Graphics g) {
+   int x = (int) changed.getX();
+   int y = (int) changed.getY();
+   maze[x][y] = 1;
+   g.fillRect(xAdjust + x * xSize + 1, yAdjust + y * ySize + 1, xSize - 1, ySize - 1);
+   g.fillRect(xAdjust + x * xSize + 1, yAdjust + y * ySize + 1, xSize - 1, ySize - 1);
+ }
   
   public void PaintMaze(){
     //Checkerboard the maze
@@ -76,9 +147,6 @@ public class MazeGenerator {
     System.out.println("Crit One: (" + (int) critOne.getX() + ", " + (int) critOne.getY() + ")");
     maze[(int) critTwo.getX()][(int) critTwo.getY()] = 1;
     System.out.println("Crit Two : (" + (int) critTwo.getX() + ", " + (int) critTwo.getY() + ")");
-    
-    //Draw Maze
-    launcher = new MazeGenLauncher(maze);
   }
   
   public int RandCord(boolean odder){
@@ -169,28 +237,28 @@ public class MazeGenerator {
         case 1: 
           if (x < maze.length - 2 && checkUsage(new Point(x + 2, y)) == 0){
             next = new Point(x + 2, y);
-            ChangeCoords(new Point(x + 1, y));
+            //paintComponent(new Point(x + 1, y));
             changed = true;
           }
           break;
         case 2: 
           if (x > 2 && checkUsage(new Point(x - 2, y)) == 0){
             next = new Point(x - 2, y);
-            ChangeCoords(new Point (x - 1, y));
+            //paintComponent(new Point (x - 1, y));
             changed = true;
           }
           break;
         case 3: 
           if (y < maze[0].length - 2 && checkUsage(new Point(x, y + 2)) == 0){
             next = new Point(x, y + 2);
-            ChangeCoords(new Point(x, y + 1));
+            //paintComponent(new Point(x, y + 1));
             changed = true;
           }
           break;
         case 4: 
           if (y > 2 && checkUsage(new Point(x, y - 2)) == 0){
             next = new Point(x, y - 2);
-            ChangeCoords(new Point(x, y - 1));
+            //paintComponent(new Point(x, y - 1));
             changed = true;
           }
           break;
@@ -199,13 +267,8 @@ public class MazeGenerator {
     //System.out.println("Next: " + next);
     return next;
   }
-
+  
   public static void main(String[] args){
-    //Grab test.png, make X, by Y, save as "test"
-    //new MazeGenerator(new ImageProcessor(new File("../res/test.png")), 21, 21, "test");
-    //new MazeGenerator(new ImageProcessor(new File("../res/test.png")), 51, 51, "test");
-    //new MazeGenerator(new ImageProcessor(new File("../res/test.png")), 131, 131, "test");
-    new MazeGenerator(new ImageProcessor(new File("../res/test.png")), 251, 251, "test");
-    //new MazeGenerator(new ImageProcessor(new File("../res/test.png")), 501, 501, "test");
+     new MazeGraphicGenerator(new ImageProcessor(new File("../res/test.png")), 501, 501, "test");
   }
 }

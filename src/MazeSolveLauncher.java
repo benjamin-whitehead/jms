@@ -126,7 +126,7 @@ public class MazeSolveLauncher extends JFrame {
   }
   
   public static void main(String[] args){
-    ImageProcessor processor = new ImageProcessor(new File("../res/test.png"));
+    new ImageProcessor(new File("../res/test.png"));
     //new MazeSolveLauncher(processor.createAdjacencyMatrix());
   }
 }
